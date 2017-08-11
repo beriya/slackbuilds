@@ -1,0 +1,3 @@
+#+TITLE: Development plan
+* TODO [[https://github.com/adapta-project/adapta-gtk-theme][Adapta]] GTK theme
+* TODO Add README
