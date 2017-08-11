@@ -1,0 +1,5 @@
+* SassC
+- package :: sassc
+- version :: 3.4.5
+- source url :: [[https://github.com/sass/sassc/archive/3.4.2.tar.gz]]
+- requirements :: libsass (same version)
