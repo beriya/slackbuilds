@@ -1,0 +1,63 @@
+#!/bin/sh
+
+PRGNAM=mattermost
+ARCH=${ARCH:-$(uname -m)}
+
+case "${ARCH}" in
+    i?86)
+        DEBARCH="ia32"
+        ARCH=i686
+        ;;
+    x86_64)
+        DEBARCH="x64"
+        ARCH=x86_64
+        ;;
+    *)
+        echo "Package for ${ARCH} architecture is not available"
+        exit 1
+        ;;
+esac
+
+VERSION=${VERSION:-$(echo ${PRGNAM}*.tar.gz | cut -f 3 -d -)}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/SBo}
+PKG=${TMP}/package-${PRGNAM}
+OUTPUT=${OUTPUT:-/tmp}
+
+set -e
+
+rm -rf ${PKG}
+mkdir -p ${TMP} ${PKG} ${OUTPUT}
+cd ${TMP}
+tar xzvf ${CWD}/${PRGNAM}-desktop-${VERSION}-linux-${DEBARCH}.tar.gz
+chown -R root:root .
+chmod -R u+w,go+r,a-s .
+
+chmod 0755 .
+
+mkdir -p ${PKG}/opt/${PRGNAM}
+cp -rf ${TMP}/${PRGNAM}-desktop-${VERSION}/* ${PKG}/opt/${PRGNAM}
+
+find ${PKG} -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+    | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p ${PKG}/usr/local/bin
+(
+    cd ${PKG}/usr/local/bin
+    ln -sf /opt/${PRGNAM}/${PRGNAM}-desktop ${PRGNAM}
+)
+
+mkdir -p ${PKG}/usr/doc/${PRGNAM}-${VERSION}
+mv ${PKG}/opt/${PRGNAM}/LICENSE* ${PKG}/usr/doc/${PRGNAM}-${VERSION}
+mv ${PKG}/opt/${PRGNAM}/NOTICE.txt ${PKG}/usr/doc/${PRGNAM}-${VERSION}
+mv ${PKG}/opt/${PRGNAM}/README.md ${PKG}/usr/doc/${PRGNAM}-${VERSION}
+cat ${CWD}/${PRGNAM}.SlackBuild > ${PKG}/usr/doc/${PRGNAM}-${VERSION}/${PRGNAM}.SlackBuild
+
+mkdir -p ${PKG}/install
+cat ${CWD}/slack-desc > ${PKG}/install/slack-desc
+
+cd ${PKG}
+/sbin/makepkg -l y -c n ${OUTPUT}/${PRGNAM}-${VERSION}-${ARCH}-${BUILD}${TAG}.${PKGTYPE:-txz}

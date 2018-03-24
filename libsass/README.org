@@ -1,5 +1,0 @@
-* libsass
-- package :: libsass
-- version :: 3.4.5
-- source url :: [[https://github.com/sass/libsass/archive/3.4.5.tar.gz]]
-- requirements :: none
